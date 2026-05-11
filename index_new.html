@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMF System — محمود شعبان</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#09090f;color:#e2e8f0;font-family:'Segoe UI','Cairo',Tahoma,sans-serif;direction:rtl;min-height:100vh}
+@keyframes spin{to{transform:rotate(360deg)}}
+.container{max-width:580px;margin:0 auto;padding:28px 18px 80px}
+.header{text-align:center;margin-bottom:24px;padding:24px 20px;background:#0d0d16;border-radius:18px;border:1px solid #1a1a2e}
+.badge{display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;font-weight:900;font-size:10px;letter-spacing:3px;padding:4px 14px;border-radius:20px;margin-bottom:10px}
+.title{font-size:22px;font-weight:800;color:#f8fafc;margin-bottom:2px}
+.sub{font-size:11px;color:#475569;margin-bottom:16px}
+.steps-row{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.step-mini{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:50px}
+.sdot{width:26px;height:26px;border-radius:50%;background:#111118;border:2px solid #1f1f2e;display:flex;align-items:center;justify-content:center;font-size:10px;color:#374151;font-weight:700}
+.sdot.done{background:#f59e0b;border-color:#f59e0b;color:#000}
+.sdot.active{background:#1a1008;border-color:#f59e0b;color:#f59e0b}
+.slabel{font-size:8px;color:#374151;text-align:center}
+.slabel.active{color:#f59e0b;font-weight:700}
+.body{background:#0d0d16;border-radius:16px;border:1px solid #1a1a2e;padding:22px 18px;margin-bottom:12px}
+.stitle{font-size:20px;font-weight:800;color:#f8fafc;margin-bottom:4px}
+.sdesc{font-size:13px;color:#4b5563;margin-bottom:16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.card{background:#111118;border:2px solid #1f1f2e;border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center}
+.card.on{border-color:#f59e0b;background:#1a1008}
+.ci{font-size:24px;margin-bottom:6px}
+.cl{font-weight:700;font-size:13px;color:#e2e8f0}
+.card.on .cl{color:#f59e0b}
+.cd{font-size:11px;color:#64748b;margin-top:4px;line-height:1.4}
+.field{margin-bottom:12px}
+.lbl{font-size:12px;font-weight:700;color:#f59e0b;margin-bottom:5px;display:block}
+.opt{font-size:10px;color:#64748b;font-weight:400}
+.inp,.ta,.sel{width:100%;background:#111118;border:1px solid #1f1f2e;border-radius:8px;padding:10px 12px;color:#e2e8f0;font-size:13px;outline:none;font-family:inherit}
+.inp:focus,.ta:focus,.sel:focus{border-color:#f59e0b}
+.ta{resize:vertical;min-height:70px}
+.row{border-radius:10px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;border:1.5px solid #1f1f2e;background:#111118;margin-bottom:8px}
+.row.on{background:#1a1008;border-color:#f59e0b}
+.ri{font-size:20px}
+.rl{font-weight:700;font-size:14px;color:#94a3b8;flex:1}
+.row.on .rl{color:#f59e0b}
+.acts{display:flex;gap:10px}
+.bbk{background:#111118;border:1px solid #1f1f2e;color:#6b7280;border-radius:10px;padding:12px 18px;font-size:14px;cursor:pointer;font-family:inherit}
+.bnx,.brn{flex:1;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#000;border-radius:10px;padding:13px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.brn{padding:15px 18px;font-size:16px;font-weight:800}
+.bnx:disabled,.brn:disabled{background:#1f1f2e;color:#374151;cursor:not-allowed}
+.hint{background:#0f1a2a;border:1px solid #1e3a5f;color:#7dd3fc;padding:10px 14px;border-radius:8px;margin-top:10px;font-size:12px;display:flex;gap:8px}
+.err{background:#450a0a;border:1px solid #ef4444;color:#fca5a5;padding:10px 14px;border-radius:10px;margin-bottom:14px;font-size:13px}
+.tog{display:flex;gap:8px;background:#111118;border:1px solid #1f1f2e;border-radius:10px;padding:4px;margin-bottom:12px}
+.tb{flex:1;padding:10px;background:transparent;border:none;color:#6b7280;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600}
+.tb.on{background:#1a1008;color:#f59e0b}
+.lwrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.lcard{background:#111118;border-radius:20px;padding:40px 32px;max-width:420px;width:100%;text-align:center;border:1px solid #1f1f2e}
+.spin{width:52px;height:52px;border:4px solid #1f1f2e;border-top:4px solid #f59e0b;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+.ltitle{font-size:20px;font-weight:800;color:#f8fafc;margin-bottom:8px}
+.lstep{font-size:14px;color:#f59e0b;margin-bottom:20px;min-height:18px}
+.pbar{background:#1f1f2e;border-radius:99px;height:6px;overflow:hidden;margin-bottom:8px}
+.pfill{height:100%;background:linear-gradient(90deg,#f59e0b,#d97706);border-radius:99px;transition:width 0.5s}
+.ptxt{font-size:12px;color:#475569}
+.rlayout{display:flex;min-height:100vh}
+.sidebar{width:220px;background:#0a0a0f;border-left:1px solid #1a1a2e;padding:20px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0}
+.sbrand{font-size:9px;color:#374151;letter-spacing:2px;font-weight:700}
+.sname{font-size:14px;font-weight:800;color:#f8fafc;margin-top:4px}
+.smeta{font-size:11px;color:#64748b;margin-top:2px}
+.nav{display:flex;flex-direction:column;gap:2px;flex:1;margin-top:14px;padding-top:14px;border-top:1px solid #1a1a2e}
+.nbtn{background:transparent;border:none;color:#4b5563;padding:9px 12px;border-radius:8px;font-size:13px;cursor:pointer;text-align:right;display:flex;gap:8px;align-items:center;font-family:inherit}
+.nbtn.on{background:#1a1008;color:#f59e0b;font-weight:700}
+.rbtn{background:#1a1a2e;border:none;color:#4b5563;border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:inherit;margin-top:10px}
+.credit{font-size:9px;color:#374151;text-align:center;margin-top:6px}
+.main{flex:1;overflow-y:auto;padding:28px 24px}
+.stitle2{font-size:22px;font-weight:800;color:#f59e0b;margin-bottom:18px}
+.blk{background:#111118;border:1px solid #1f1f2e;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.blk.acc{background:#0f1a0a;border-color:#22c55e44}
+.bt{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.blk.acc .bt{color:#86efac}
+.btext{font-size:14px;color:#cbd5e1;line-height:1.8;white-space:pre-line}
+.li{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#94a3b8;line-height:1.7;margin-bottom:6px}
+.ld{color:#f59e0b;flex-shrink:0}
+.tag{display:inline-block;background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;margin:2px 2px 0 0}
+.swotg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.swotc{border-radius:10px;padding:12px}
+.hcard{background:#111118;border:1px solid #1f1f2e;border-radius:12px;padding:16px 18px;margin-bottom:12px}
+.hnum{font-size:11px;color:#64748b;font-weight:700;margin-bottom:8px}
+.htext{font-size:17px;font-weight:700;color:#f8fafc;line-height:1.6;margin-bottom:10px}
+.ccard{background:#111118;border:1px solid #374151;border-radius:12px;padding:16px;margin-bottom:12px}
+.cname{font-weight:800;font-size:16px;color:#e2e8f0;margin-bottom:10px}
+.phcard{background:#111118;border:1px solid #1f1f2e;border-radius:12px;overflow:hidden;margin-bottom:12px}
+.phhdr{background:#0f1117;padding:12px 18px;display:flex;justify-content:space-between;align-items:center}
+.phttl{font-weight:700;color:#e2e8f0;font-size:14px}
+.phbdg{font-size:12px;color:#f59e0b;background:#1a1008;padding:3px 10px;border-radius:99px}
+.phbdy{padding:14px 18px}
+.fcard{background:#111118;border-radius:12px;padding:16px 18px;margin-bottom:12px}
+.ftitle{font-size:13px;font-weight:700;margin-bottom:8px}
+@media(max-width:768px){.sidebar{width:100%;height:auto;position:relative}.rlayout{flex-direction:column}.main{padding:20px 16px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const WU="https://old-waterfall-3f81.mahmoudhadhoud255790.workers.dev";
+const COUNTRIES=[
+{id:"eg",label:"مصر",icon:"🇪🇬",regions:["كل المحافظات","القاهرة","الجيزة","الإسكندرية","الشرقية","الدقهلية","البحيرة","المنوفية","القليوبية","أسيوط","سوهاج","المنيا","بني سويف","الفيوم","الإسماعيلية","السويس","بورسعيد","دمياط","كفر الشيخ","الغربية","الأقصر","أسوان"]},
+{id:"sa",label:"السعودية",icon:"🇸🇦",regions:["كل المناطق","الرياض","مكة","المدينة","القصيم","الشرقية","عسير","تبوك","حائل","جازان","نجران","الباحة","الجوف"]},
+{id:"ae",label:"الإمارات",icon:"🇦🇪",regions:["كل الإمارات","دبي","أبوظبي","الشارقة","عجمان","أم القيوين","رأس الخيمة","الفجيرة"]},
+{id:"iq",label:"العراق",icon:"🇮🇶",regions:["كل المحافظات","بغداد","البصرة","أربيل","الموصل","النجف","كربلاء","السليمانية","كركوك"]},
+{id:"jo",label:"الأردن",icon:"🇯🇴",regions:["كل المحافظات","عمان","الزرقاء","إربد","العقبة","البلقاء","المفرق","الكرك","معان"]},
+{id:"ly",label:"ليبيا",icon:"🇱🇾",regions:["كل المحافظات","طرابلس","بنغازي","مصراتة","الزاوية","سبها"]}
+];
+const INDS=[
+{id:"ecommerce",label:"E-commerce",icon:"🛒"},{id:"services",label:"خدمات/كوتشنج",icon:"🎯"},
+{id:"education",label:"تعليم/كورسات",icon:"🎓"},{id:"food",label:"مطاعم/فود",icon:"🍔"},
+{id:"realestate",label:"عقارات",icon:"🏠"},{id:"health",label:"صحة/جمال",icon:"💊"},
+{id:"fashion",label:"فاشون/ملابس",icon:"👗"},{id:"b2b",label:"B2B/شركات",icon:"🏢"}
+];
+const STAGES=[
+{id:"idea",label:"فكرة / لسه بأبدا",icon:"💡"},{id:"starting",label:"بدأت من فترة قصيرة",icon:"🌱"},
+{id:"growing",label:"نامي وعندي عملاء",icon:"📈"},{id:"established",label:"مستقر ومحتاج توسع",icon:"🏆"}
+];
+const GENDERS=[{id:"both",label:"الاتنين",icon:"👥"},{id:"male",label:"ذكور",icon:"👨"},{id:"female",label:"إناث",icon:"👩"}];
+const AGES=[{id:"13-17",label:"13-17"},{id:"18-24",label:"18-24"},{id:"25-34",label:"25-34"},{id:"35-44",label:"35-44"},{id:"45-54",label:"45-54"},{id:"55+",label:"55+"}];
+const BIZES=[
+{id:"b2c",label:"B2C — أفراد",icon:"🧑",desc:"عملاء عاديين"},{id:"b2b",label:"B2B — شركات",icon:"🏢",desc:"شركات ومؤسسات"},
+{id:"both",label:"الاتنين",icon:"🔄",desc:"أفراد وشركات"}
+];
+const GOALS=[{id:"brand",label:"Brand Building",icon:"👑",desc:"براند قوي طويل المدى"},{id:"sales",label:"Direct Sales",icon:"💰",desc:"مبيعات ونتائج سريعة"}];
+const PLATS=[
+{id:"meta",label:"Meta (FB+IG)",icon:"📘",color:"#1877f2"},{id:"tiktok",label:"TikTok Ads",icon:"🎵",color:"#ff0050"},
+{id:"google",label:"Google Ads",icon:"🔍",color:"#4285f4"},{id:"snapchat",label:"Snapchat",icon:"👻",color:"#fbbf24"}
+];
+const BUDGETS=[{id:"micro",label:"أقل من 5,000"},{id:"small",label:"5,000 - 15,000"},{id:"medium",label:"15,000 - 50,000"},{id:"large",label:"+50,000"}];
+const DURS=[{id:"month",label:"شهر",icon:"📆",desc:"خطة سريعة"},{id:"quarter",label:"3 شهور",icon:"📅",desc:"الأفضل للحملات"},{id:"year",label:"سنة",icon:"🗓️",desc:"خطة شاملة"}];
+const SLABELS=["الدولة","المجال","العرض","الجمهور","المنافسون","الموارد","الهدف","المنصة","الميزانية","الفترة"];
+const RTABS=[
+{id:"strategy",label:"الاستراتيجية",icon:"⚡"},{id:"audience",label:"الجمهور",icon:"👥"},
+{id:"competitors",label:"المنافسون",icon:"🥊"},{id:"media",label:"Media Buying",icon:"📊"},
+{id:"content",label:"المحتوى",icon:"🎬"},{id:"hooks",label:"الهوكات",icon:"🪝"},
+{id:"funnel",label:"Sales Funnel",icon:"🔽"},{id:"journey",label:"Customer Journey",icon:"🗺️"},
+{id:"plan",label:"خطة العمل",icon:"📋"}
+];
+
+let S={screen:"wizard",step:0,tab:"strategy",prog:0,err:"",res:null,
+f:{country:"",region:"",whole:true,ind:"",bname:"",oname:"",odesc:"",price:"",
+gender:"",ages:[],biz:"",comps:"",stage:"",website:"",team:"",content:"",
+goal:"",plats:[],budget:"",mbudget:"",dur:""}};
+
+function ok(){
+const f=S.f;
+switch(S.step){
+case 0:return!!f.country;case 1:return!!f.ind;
+case 2:return f.oname.trim()&&f.odesc.trim()&&f.price.trim();
+case 3:return!!f.gender&&f.ages.length>0&&!!f.biz;
+case 4:return!!f.stage;case 5:return!!f.website&&!!f.team&&!!f.content;
+case 6:return!!f.goal;case 7:return f.plats.length>0;
+case 8:return!!f.budget;case 9:return!!f.dur;
+default:return true;}
+}
+
+function E(s){return String(s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function RL(items){return(items||[]).map(x=>'<div class="li"><span class="ld">◆</span><span>'+E(x)+'</span></div>').join("")}
+
+function CTX(){
+const f=S.f;
+const country=COUNTRIES.find(x=>x.id===f.country)?.label||"";
+const ind=INDS.find(x=>x.id===f.ind)?.label||"";
+const stage=STAGES.find(x=>x.id===f.stage)?.label||"";
+const gender=GENDERS.find(x=>x.id===f.gender)?.label||"";
+const biz=BIZES.find(x=>x.id===f.biz)?.label||"";
+const goal=GOALS.find(x=>x.id===f.goal)?.label||"";
+const plats=f.plats.map(p=>PLATS.find(x=>x.id===p)?.label).join(", ");
+const budget=BUDGETS.find(x=>x.id===f.budget)?.label||"";
+const dur=DURS.find(x=>x.id===f.dur)?.label||"";
+const loc=f.whole?country:f.region+", "+country;
+return"المشروع:"+f.oname+"|المجال:"+ind+"|الدولة:"+loc+"|السعر:"+f.price+"|الهدف:"+goal+"|المنصات:"+plats+"|الميزانية:"+budget+"|الجنس:"+gender+"|الأعمار:"+f.ages.join(",")+"|نوع:"+biz+"|المرحلة:"+stage+(f.comps?"|منافسون:"+f.comps:"")+"|الوصف:"+f.odesc+"|فترة:"+dur;
+}
+
+async function API(prompt){
+const res=await fetch(WU,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt})});
+const txt=await res.text();
+if(!txt)throw new Error("استجابة فارغة");
+let d;try{d=JSON.parse(txt)}catch(e){throw new Error("خطأ سيرفر: "+txt.substring(0,80))}
+if(d.error)throw new Error(typeof d.error==="string"?d.error:d.error.message||JSON.stringify(d.error).substring(0,100));
+if(!d.content)throw new Error("لا يوجد محتوى");
+const text=d.content.map(i=>i.text||"").join("");
+const clean=text.replace(/```json\s*/g,"").replace(/```\s*/g,"").trim();
+const m=clean.match(/\{[\s\S]*\}/);
+if(!m)throw new Error("لا يوجد JSON");
+return JSON.parse(m[0]);
+}
+
+function P1(){
+return"أنت DMF System محمود شعبان. "+CTX()+"\nJSON فقط:"+
+'{"warnings":[],"strategy":{"positioningStatement":"","brandVsSales":"","usp":"","valueProposition":"","marketAnalysis":"","swot":{"strengths":[""],"weaknesses":[""],"opportunities":[""],"threats":[""]}},"audience":{"primaryPersona":{"name":"","age":"","gender":"","income":"","interests":[""],"painPoints":[""],"goals":[""],"objections":[""],"platforms":""},"secondaryPersona":"","metaTargeting":{"interests":[""],"behaviors":[""],"exclusions":[""],"lookalike":""},"tiktokTargeting":""}}';
+}
+function P2(){
+const c=COUNTRIES.find(x=>x.id===S.f.country)?.label||"";
+return"أنت DMF System محمود شعبان. "+CTX()+"\nالمنافسون أسماء حقيقية في "+c+". JSON فقط:"+
+'{"competitors":[{"name":"","size":"","strengths":[""],"weaknesses":[""],"pricing":"","marketingStrategy":"","howToBeat":""}],"mediaBuying":{"budgetAllocation":"","testingBudget":"","scalingStrategy":"","platformPlans":[{"platform":"","campaignObjective":"","campaignStructure":"","biddingStrategy":"","targetingDetails":"","creativeFormats":"","abTestPlan":"","kpis":[""],"monthlyBudget":"","expectedResults":"","commonMistakes":[""]}]}}';
+}
+function P3(){
+return"أنت DMF System محمود شعبان. "+CTX()+"\nJSON فقط:"+
+'{"content":{"creativeDirection":"","contentPillars":["","","",""],"postingFrequency":"","monthlyPostDistribution":"","videoIdeas":[{"title":"","format":"","duration":"","platform":"","purpose":"","script":""}],"contentCalendar":""},"hooks":[{"type":"","text":"","platform":"","funnel":"","emotion":""}],"salesFunnel":{"stage1_traffic":{"title":"Stage 1: Traffic","description":"","platforms":"","creatives":"","budget":""},"stage2_landing":{"title":"Stage 2: Landing","description":"","structure":"","cta":"","elements":[""]},"stage3_lead":{"title":"Stage 3: Lead","description":"","leadMagnet":"","form":""},"stage4_email":{"title":"Stage 4: Email","description":"","emails":[""]},"stage5_sales":{"title":"Stage 5: Sales","description":"","tactics":[""],"objectionHandling":""},"stage6_retention":{"title":"Stage 6: Retention","description":"","tactics":[""]}},"customerJourney":{"awareness":{"stage":"Awareness","customerEmotion":"","touchpoints":[""],"yourAction":"","content":""},"consideration":{"stage":"Consideration","customerEmotion":"","touchpoints":[""],"yourAction":"","content":""},"decision":{"stage":"Decision","customerEmotion":"","touchpoints":[""],"yourAction":"","content":""},"purchase":{"stage":"Purchase","customerEmotion":"","touchpoints":[""],"yourAction":"","content":""},"loyalty":{"stage":"Loyalty","customerEmotion":"","touchpoints":[""],"yourAction":"","content":""}},"actionPlan":{"phases":[{"title":"","duration":"","objective":"","actions":[""],"budget":"","deliverables":[""],"kpis":[""]}],"weeklyCheckIns":"","monthlyReports":"","successCriteria":[""]}}';
+}
+
+async function RUN(){
+S.screen="loading";S.prog=5;S.err="";render();
+const iv=setInterval(()=>{if(S.prog<88){S.prog+=Math.random()*3;render()}},800);
+try{
+const [r1,r2,r3]=await Promise.all([API(P1()),API(P2()),API(P3())]);
+clearInterval(iv);S.prog=96;render();
+S.res=Object.assign({},r1,r2,r3);S.prog=100;render();
+setTimeout(()=>{S.screen="results";S.tab="strategy";render()},400);
+}catch(e){clearInterval(iv);S.err="خطأ: "+e.message;S.screen="wizard";render()}
+}
+
+function rStrategy(){
+const r=S.res;if(!r)return"";const s=r.strategy||{};
+let h="";
+if(r.warnings&&r.warnings.length>0){h+='<div style="background:#1c0a00;border:1px solid #ea580c;border-radius:12px;padding:14px;margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:#f97316;margin-bottom:8px">⚠️ ملاحظات</div>';r.warnings.forEach(w=>{h+='<div style="font-size:13px;color:#fdba74;margin-bottom:4px">• '+E(w)+'</div>'});h+='</div>'}
+h+='<div class="blk acc"><div class="bt">📍 Positioning</div><div class="btext">'+E(s.positioningStatement)+'</div></div>';
+h+='<div class="blk"><div class="bt">👑 Brand vs Sales</div><div class="btext">'+E(s.brandVsSales)+'</div></div>';
+h+='<div class="blk"><div class="bt">💎 USP</div><div class="btext">'+E(s.usp)+'</div></div>';
+h+='<div class="blk"><div class="bt">💡 Value Proposition</div><div class="btext">'+E(s.valueProposition)+'</div></div>';
+h+='<div class="blk"><div class="bt">📊 تحليل السوق</div><div class="btext">'+E(s.marketAnalysis)+'</div></div>';
+const sw=[{l:"💪 Strengths",i:s.swot?.strengths,c:"#22c55e"},{l:"😓 Weaknesses",i:s.swot?.weaknesses,c:"#ef4444"},{l:"🌟 Opportunities",i:s.swot?.opportunities,c:"#f59e0b"},{l:"⚡ Threats",i:s.swot?.threats,c:"#8b5cf6"}];
+h+='<div class="swotg">';
+sw.forEach(x=>{h+='<div class="swotc" style="background:'+x.c+'0a;border:1px solid '+x.c+'33"><div class="swotc" style="font-weight:700;font-size:12px;color:'+x.c+';margin-bottom:8px">'+x.l+'</div>';(x.i||[]).forEach(it=>{h+='<div style="font-size:12px;color:#94a3b8;margin-bottom:4px">• '+E(it)+'</div>'});h+='</div>'});
+h+='</div>';return h;
+}
+
+function rAudience(){
+const r=S.res;if(!r)return"";const a=r.audience||{};const p=a.primaryPersona||{};
+let h='<div class="blk acc"><div class="bt">👤 Primary Persona</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">';
+[{l:"الاسم",v:p.name},{l:"العمر",v:p.age},{l:"الجنس",v:p.gender},{l:"الدخل",v:p.income}].forEach(x=>{h+='<div style="background:#0a0a12;border-radius:8px;padding:10px"><div style="font-size:10px;color:#64748b">'+x.l+'</div><div style="font-size:13px;color:#f59e0b;font-weight:700;margin-top:2px">'+E(x.v)+'</div></div>'});
+h+='</div>';
+h+='<div style="margin-bottom:10px"><div class="bt">🎯 الاهتمامات</div>';(p.interests||[]).forEach(i=>{h+='<span class="tag">'+E(i)+'</span>'});h+='</div>';
+h+='<div style="margin-bottom:10px"><div class="bt">😰 Pain Points</div>'+RL(p.painPoints)+'</div>';
+h+='<div style="margin-bottom:10px"><div class="bt">🎯 الأهداف</div>'+RL(p.goals)+'</div>';
+h+='<div style="margin-bottom:10px"><div class="bt">🚫 الاعتراضات</div>'+RL(p.objections)+'</div>';
+h+='<div><div class="bt">📱 المنصات</div><div class="btext">'+E(p.platforms)+'</div></div></div>';
+h+='<div class="blk"><div class="bt">👥 Secondary Persona</div><div class="btext">'+E(a.secondaryPersona)+'</div></div>';
+if(a.metaTargeting){
+h+='<div class="blk"><div class="bt">📘 Meta Targeting</div>';
+h+='<div style="font-size:11px;color:#64748b;margin-bottom:4px">الاهتمامات</div>';(a.metaTargeting.interests||[]).forEach(i=>{h+='<span class="tag">'+E(i)+'</span>'});
+h+='<div style="font-size:11px;color:#64748b;margin:10px 0 4px">السلوكيات</div>';(a.metaTargeting.behaviors||[]).forEach(i=>{h+='<span class="tag">'+E(i)+'</span>'});
+h+='<div style="font-size:11px;color:#ef4444;margin:10px 0 4px">⛔ Exclusions</div>';(a.metaTargeting.exclusions||[]).forEach(i=>{h+='<span class="tag" style="background:rgba(239,68,68,0.1);color:#fca5a5;border-color:rgba(239,68,68,0.3)">'+E(i)+'</span>'});
+h+='<div style="font-size:11px;color:#38bdf8;margin:10px 0 4px">💡 Lookalike</div><div class="btext">'+E(a.metaTargeting.lookalike)+'</div></div>';
+}
+if(a.tiktokTargeting){h+='<div class="blk"><div class="bt">🎵 TikTok Targeting</div><div class="btext">'+E(a.tiktokTargeting)+'</div></div>'}
+return h;
+}
+
+function rCompetitors(){
+const r=S.res;if(!r||!r.competitors)return"";let h="";
+r.competitors.forEach(c=>{
+h+='<div class="ccard"><div class="cname">🏢 '+E(c.name)+' <span style="font-size:11px;color:#64748b;font-weight:400">— '+E(c.size)+'</span></div>';
+h+='<div style="margin-bottom:12px"><div class="bt">💪 نقاط القوة</div>'+RL(c.strengths)+'</div>';
+h+='<div style="margin-bottom:12px"><div class="bt">😓 نقاط الضعف</div>'+RL(c.weaknesses)+'</div>';
+h+='<div class="blk"><div class="bt">💰 التسعير</div><div class="btext">'+E(c.pricing)+'</div></div>';
+h+='<div class="blk"><div class="bt">📣 الاستراتيجية</div><div class="btext">'+E(c.marketingStrategy)+'</div></div>';
+h+='<div class="blk acc"><div class="bt">🏆 إزاي تتفوق عليه</div><div class="btext">'+E(c.howToBeat)+'</div></div></div>';
+});return h;
+}
+
+function rMedia(){
+const r=S.res;if(!r||!r.mediaBuying)return"";const m=r.mediaBuying;
+let h='<div class="blk acc"><div class="bt">💰 توزيع الميزانية</div><div class="btext">'+E(m.budgetAllocation)+'</div>';
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px"><div style="background:#0a0a12;border-radius:8px;padding:10px"><div style="font-size:11px;color:#64748b">Testing</div><div style="font-size:13px;color:#fde68a;margin-top:4px">'+E(m.testingBudget)+'</div></div><div style="background:#0a0a12;border-radius:8px;padding:10px"><div style="font-size:11px;color:#64748b">Scaling</div><div style="font-size:13px;color:#86efac;margin-top:4px">'+E(m.scalingStrategy)+'</div></div></div></div>';
+(m.platformPlans||[]).forEach(p=>{
+h+='<div class="blk" style="padding:16px"><div style="font-weight:800;font-size:17px;color:#f59e0b;margin-bottom:14px">'+E(p.platform)+'</div>';
+[{l:"🎯 Objective",v:p.campaignObjective},{l:"🏗️ Structure",v:p.campaignStructure},{l:"💵 Bidding",v:p.biddingStrategy},{l:"👥 Targeting",v:p.targetingDetails},{l:"🎨 Formats",v:p.creativeFormats},{l:"🔬 A/B Test",v:p.abTestPlan},{l:"📈 Results",v:p.expectedResults},{l:"💰 Budget",v:p.monthlyBudget}].forEach(x=>{h+='<div class="blk"><div class="bt">'+x.l+'</div><div class="btext">'+E(x.v)+'</div></div>'});
+h+='<div style="margin:10px 0"><div class="bt">📊 KPIs</div>';(p.kpis||[]).forEach(k=>{h+='<span class="tag" style="background:rgba(34,197,94,0.1);color:#22c55e;border-color:rgba(34,197,94,0.3)">'+E(k)+'</span>'});h+='</div>';
+if(p.commonMistakes&&p.commonMistakes.length>0){h+='<div style="background:#1c0a00;border-radius:8px;padding:10px;margin-top:10px"><div style="font-size:11px;color:#f97316;margin-bottom:6px;font-weight:700">⚠️ أغلاط شائعة</div>';p.commonMistakes.forEach(x=>{h+='<div style="font-size:12px;color:#fdba74;margin-bottom:4px">• '+E(x)+'</div>'});h+='</div>'}
+h+='</div>';});return h;
+}
+
+function rContent(){
+const r=S.res;if(!r||!r.content)return"";const c=r.content;
+let h='<div class="blk acc"><div class="bt">🎨 Creative Direction</div><div class="btext">'+E(c.creativeDirection)+'</div></div>';
+h+='<div class="blk"><div class="bt">🏛️ Content Pillars</div>'+RL(c.contentPillars)+'</div>';
+h+='<div class="blk"><div class="bt">📅 Posting Frequency</div><div class="btext">'+E(c.postingFrequency)+'</div></div>';
+h+='<div class="blk"><div class="bt">📋 توزيع البوستات</div><div class="btext">'+E(c.monthlyPostDistribution)+'</div></div>';
+h+='<div class="blk"><div class="bt">🎬 أفكار الفيديو</div>';
+(c.videoIdeas||[]).forEach(v=>{h+='<div style="background:#0a0a12;border-radius:10px;padding:12px;margin-bottom:10px"><div style="font-weight:700;color:#f8fafc;margin-bottom:6px">'+E(v.title)+'</div><div><span class="tag">'+E(v.format)+'</span><span class="tag" style="background:rgba(56,189,248,0.1);color:#38bdf8;border-color:rgba(56,189,248,0.3)">'+E(v.duration)+'</span><span class="tag" style="background:rgba(129,140,248,0.1);color:#818cf8;border-color:rgba(129,140,248,0.3)">'+E(v.platform)+'</span><span class="tag" style="background:rgba(34,197,94,0.1);color:#22c55e;border-color:rgba(34,197,94,0.3)">'+E(v.purpose)+'</span></div><div style="font-size:12px;color:#94a3b8;line-height:1.6;margin-top:6px">📝 '+E(v.script)+'</div></div>'});
+h+='</div><div class="blk"><div class="bt">📆 Content Calendar</div><div class="btext">'+E(c.contentCalendar)+'</div></div>';
+return h;
+}
+
+function rHooks(){
+const r=S.res;if(!r||!r.hooks)return"";let h="";
+r.hooks.forEach((hk,i)=>{h+='<div class="hcard"><div class="hnum">هوك #'+(i+1)+'</div><div class="htext">"'+E(hk.text)+'"</div><div><span class="tag">'+E(hk.type)+'</span><span class="tag" style="background:rgba(129,140,248,0.1);color:#818cf8;border-color:rgba(129,140,248,0.3)">'+E(hk.platform)+'</span><span class="tag" style="background:rgba(34,197,94,0.1);color:#22c55e;border-color:rgba(34,197,94,0.3)">'+E(hk.funnel)+'</span><span class="tag" style="background:rgba(244,63,94,0.1);color:#f43f5e;border-color:rgba(244,63,94,0.3)">'+E(hk.emotion)+'</span></div></div>'});
+return h;
+}
+
+function rFunnel(){
+const r=S.res;if(!r||!r.salesFunnel)return"";const sf=r.salesFunnel;
+const stgs=[{k:"stage1_traffic",c:"#f59e0b"},{k:"stage2_landing",c:"#38bdf8"},{k:"stage3_lead",c:"#a855f7"},{k:"stage4_email",c:"#ec4899"},{k:"stage5_sales",c:"#22c55e"},{k:"stage6_retention",c:"#f43f5e"}];
+let h="";
+stgs.forEach(({k,c})=>{
+const s=sf[k];if(!s)return;
+h+='<div class="fcard" style="border:1px solid '+c+'44"><div class="ftitle" style="color:'+c+'">'+E(s.title)+'</div><div class="btext" style="margin-bottom:10px">'+E(s.description)+'</div>';
+if(s.platforms)h+='<div><span style="font-size:11px;color:#64748b">المنصات: </span><span style="font-size:13px;color:#cbd5e1">'+E(s.platforms)+'</span></div>';
+if(s.creatives)h+='<div><span style="font-size:11px;color:#64748b">الإعلانات: </span><span style="font-size:13px;color:#cbd5e1">'+E(s.creatives)+'</span></div>';
+if(s.budget)h+='<div><span style="font-size:11px;color:#64748b">الميزانية: </span><span style="font-size:13px;color:#f59e0b">'+E(s.budget)+'</span></div>';
+if(s.structure)h+='<div style="margin:8px 0"><div style="font-size:11px;color:#64748b;margin-bottom:4px">هيكل الصفحة:</div><div style="font-size:13px;color:#cbd5e1;line-height:1.7">'+E(s.structure)+'</div></div>';
+if(s.cta)h+='<div><span style="font-size:11px;color:#64748b">CTA: </span><span style="font-size:13px;color:#f59e0b;font-weight:700">'+E(s.cta)+'</span></div>';
+if(s.elements&&s.elements.length>0)h+='<div style="margin-top:8px"><div style="font-size:11px;color:#64748b;margin-bottom:4px">العناصر:</div>'+RL(s.elements)+'</div>';
+if(s.leadMagnet)h+='<div><span style="font-size:11px;color:#64748b">Lead Magnet: </span><span style="font-size:13px;color:#cbd5e1">'+E(s.leadMagnet)+'</span></div>';
+if(s.emails&&s.emails.length>0)h+='<div style="margin-top:8px"><div style="font-size:11px;color:#64748b;margin-bottom:4px">سلسلة الإيميلات:</div>'+RL(s.emails)+'</div>';
+if(s.tactics&&s.tactics.length>0)h+='<div style="margin-top:8px"><div style="font-size:11px;color:#64748b;margin-bottom:4px">التكتيكات:</div>'+RL(s.tactics)+'</div>';
+if(s.objectionHandling)h+='<div style="margin-top:6px"><span style="font-size:11px;color:#64748b">الاعتراضات: </span><span style="font-size:13px;color:#cbd5e1">'+E(s.objectionHandling)+'</span></div>';
+h+='</div>';});return h;
+}
+
+function rJourney(){
+const r=S.res;if(!r||!r.customerJourney)return"";const cj=r.customerJourney;
+const stgs=["awareness","consideration","decision","purchase","loyalty"];
+const cols=["#f59e0b","#38bdf8","#a855f7","#22c55e","#f43f5e"];
+let h="";
+stgs.forEach((k,i)=>{
+const s=cj[k];if(!s)return;
+h+='<div class="fcard" style="border:1px solid '+cols[i]+'44"><div class="ftitle" style="color:'+cols[i]+'">'+(i+1)+'. '+E(s.stage)+'</div>';
+h+='<div style="margin:8px 0"><div style="font-size:11px;color:#64748b;margin-bottom:4px">😊 مشاعر العميل</div><div style="font-size:13px;color:#cbd5e1;line-height:1.6">'+E(s.customerEmotion)+'</div></div>';
+h+='<div style="margin:8px 0"><div style="font-size:11px;color:#64748b;margin-bottom:4px">📍 نقاط الاتصال</div>'+RL(s.touchpoints)+'</div>';
+h+='<div style="margin:8px 0"><div style="font-size:11px;color:#64748b;margin-bottom:4px">🎯 إيه تعمل</div><div style="font-size:13px;color:#cbd5e1;line-height:1.6">'+E(s.yourAction)+'</div></div>';
+h+='<div style="margin:8px 0"><div style="font-size:11px;color:#64748b;margin-bottom:4px">📝 المحتوى</div><div style="font-size:13px;color:'+cols[i]+';line-height:1.6">'+E(s.content)+'</div></div></div>';
+});return h;
+}
+
+function rPlan(){
+const r=S.res;if(!r||!r.actionPlan)return"";const p=r.actionPlan;let h="";
+(p.phases||[]).forEach(ph=>{
+h+='<div class="phcard"><div class="phhdr"><div><div style="font-size:11px;color:#64748b">'+E(ph.duration)+'</div><div class="phttl">'+E(ph.title)+'</div></div><div class="phbdg">'+E(ph.budget)+'</div></div>';
+h+='<div class="phbdy"><div style="margin-bottom:12px"><div class="bt">🎯 الهدف</div><div class="btext">'+E(ph.objective)+'</div></div>';
+h+='<div style="margin-bottom:12px"><div class="bt">📋 الخطوات</div>'+RL(ph.actions)+'</div>';
+h+='<div style="margin-bottom:12px"><div class="bt">📦 المخرجات</div>'+RL(ph.deliverables)+'</div>';
+h+='<div><div class="bt">📊 KPIs</div>';(ph.kpis||[]).forEach(k=>{h+='<span class="tag" style="background:rgba(34,197,94,0.1);color:#22c55e;border-color:rgba(34,197,94,0.3)">'+E(k)+'</span>'});h+='</div></div></div>';
+});
+h+='<div class="blk"><div class="bt">📅 Weekly Check-ins</div><div class="btext">'+E(p.weeklyCheckIns)+'</div></div>';
+h+='<div class="blk"><div class="bt">📆 Monthly Reports</div><div class="btext">'+E(p.monthlyReports)+'</div></div>';
+h+='<div class="blk acc"><div class="bt">✅ معايير النجاح</div>'+RL(p.successCriteria)+'</div>';
+return h;
+}
+
+const TR={strategy:rStrategy,audience:rAudience,competitors:rCompetitors,media:rMedia,content:rContent,hooks:rHooks,funnel:rFunnel,journey:rJourney,plan:rPlan};
+
+function render(){
+const app=document.getElementById("app");
+if(S.screen==="loading"){
+const msgs=["تحليل البيانات...","تحديد الجمهور...","البحث عن المنافسين...","بناء Media Buying...","توليد المحتوى...","بناء Sales Funnel...","رسم Customer Journey...","إعداد الخطة..."];
+const ci=Math.min(Math.floor(S.prog/12),msgs.length-1);
+app.innerHTML='<div class="lwrap"><div class="lcard"><div class="spin"></div><div class="ltitle">DMF System شغّال...</div><div class="lstep">'+msgs[ci]+'</div><div class="pbar"><div class="pfill" style="width:'+S.prog+'%"></div></div><div class="ptxt">'+Math.round(S.prog)+'%</div><div style="font-size:11px;color:#374151;margin-top:24px">مقدم من محمود شعبان</div></div></div>';
+return;
+}
+if(S.screen==="results"){
+const co=COUNTRIES.find(c=>c.id===S.f.country);const ind=INDS.find(i=>i.id===S.f.ind);
+const tab=RTABS.find(t=>t.id===S.tab);
+let h='<div class="rlayout"><aside class="sidebar"><div><div class="sbrand">DMF SYSTEM</div><div class="sname">'+E(S.f.oname)+'</div><div class="smeta">'+(co?.icon||"")+' '+E(co?.label||"")+' • '+E(ind?.label||"")+'</div></div><nav class="nav">';
+RTABS.forEach(t=>{h+='<button class="nbtn '+(S.tab===t.id?"on":"")+'" onclick="GT(\''+t.id+'\')"><span>'+t.icon+'</span><span>'+t.label+'</span></button>'});
+h+='</nav><button class="rbtn" onclick="RST()">🔄 تحليل جديد</button><div class="credit">DMF System<br>محمود شعبان</div></aside>';
+h+='<main class="main"><div style="max-width:750px"><h2 class="stitle2">'+(tab?.icon||"")+' '+(tab?.label||"")+'</h2>'+TR[S.tab]()+'</div></main></div>';
+app.innerHTML=h;return;
+}
+let h='<div class="container"><div class="header"><div class="badge">DMF SYSTEM</div><div class="title">Marketing Strategy Builder</div><div class="sub">مقدم من محمود شعبان</div><div class="steps-row">';
+SLABELS.forEach((l,i)=>{h+='<div class="step-mini"><div class="sdot '+(i<S.step?"done":i===S.step?"active":"")+'">'+(i<S.step?"✓":(i+1))+'</div><div class="slabel '+(i===S.step?"active":"")+'">'+l+'</div></div>'});
+h+='</div></div>';
+if(S.err)h+='<div class="err">'+E(S.err)+'</div>';
+h+='<div class="body">'+STEPS[S.step]()+'</div><div class="acts">';
+if(S.step>0)h+='<button class="bbk" onclick="BK()">← رجوع</button>';
+if(S.step<9){h+='<button class="bnx" '+(ok()?"":"disabled")+' onclick="NX()">التالي →</button>'}
+else{h+='<button class="brn" '+(ok()?"":"disabled")+' onclick="RUN()">🚀 ابدأ التحليل</button>'}
+h+='</div></div>';
+app.innerHTML=h;
+}
+
+const STEPS=[
+()=>{
+const f=S.f;const co=COUNTRIES.find(c=>c.id===f.country);
+let h='<h2 class="stitle">🌍 الدولة المستهدفة</h2><p class="sdesc">الاستراتيجية هتكون مخصصة للسوق المحلي</p><div class="g3">';
+COUNTRIES.forEach(c=>{h+='<div class="card '+(f.country===c.id?"on":"")+'" onclick="SC(\''+c.id+'\')"><div class="ci">'+c.icon+'</div><div class="cl">'+c.label+'</div></div>'});
+h+='</div>';
+if(co){
+h+='<div style="margin-top:18px"><div class="tog"><button class="tb '+(f.whole?"on":"")+'" onclick="SW(true)">الدولة كلها</button><button class="tb '+(!f.whole?"on":"")+'" onclick="SW(false)">منطقة محددة</button></div>';
+if(!f.whole){h+='<label class="lbl">اختار المنطقة</label><select class="sel" onchange="SR(this.value)"><option value="">اختار...</option>';co.regions.forEach(r=>{h+='<option value="'+r+'" '+(f.region===r?"selected":"")+'>'+r+'</option>'});h+='</select>'}
+h+='</div>';
+}return h;
+},
+()=>{
+const f=S.f;let h='<h2 class="stitle">🏭 المجال</h2><p class="sdesc">الاختيار ده بيأثر على كل التوصيات</p><div class="g2">';
+INDS.forEach(i=>{h+='<div class="card '+(f.ind===i.id?"on":"")+'" onclick="SI(\''+i.id+'\')"><div class="ci">'+i.icon+'</div><div class="cl">'+i.label+'</div></div>'});
+h+='</div>';return h;
+},
+()=>{
+const f=S.f;
+return'<h2 class="stitle">📦 بيانات العرض</h2><p class="sdesc">عرّفنا بمنتجك أو خدمتك</p>'+
+'<div class="field"><label class="lbl">اسم النشاط <span class="opt">(اختياري)</span></label><input class="inp" placeholder="Ahmed Store" value="'+E(f.bname)+'" oninput="SN(\'bname\',this.value)"></div>'+
+'<div class="field"><label class="lbl">اسم المنتج / الخدمة *</label><input class="inp" placeholder="كورس تسويق رقمي" value="'+E(f.oname)+'" oninput="SN(\'oname\',this.value)" onblur="RN()"></div>'+
+'<div class="field"><label class="lbl">الوصف *</label><textarea class="ta" rows="3" placeholder="إيه اللي بتقدمه؟" oninput="SN(\'odesc\',this.value)" onblur="RN()">'+E(f.odesc)+'</textarea></div>'+
+'<div class="field"><label class="lbl">السعر *</label><input class="inp" placeholder="299 جنيه" value="'+E(f.price)+'" oninput="SN(\'price\',this.value)" onblur="RN()"></div>'+
+'<div class="hint"><span>💡</span><span>السيستم هيكشف العيوب والفرص تلقائياً</span></div>';
+},
+()=>{
+const f=S.f;
+let h='<h2 class="stitle">👥 الجمهور المستهدف</h2><label class="lbl">الجنس</label><div class="g3" style="margin-bottom:16px">';
+GENDERS.forEach(g=>{h+='<div class="card '+(f.gender===g.id?"on":"")+'" onclick="SF(\'gender\',\''+g.id+'\')"><div class="ci">'+g.icon+'</div><div class="cl" style="font-size:12px">'+g.label+'</div></div>'});
+h+='</div><label class="lbl">الفئات العمرية</label><div class="g3" style="margin-bottom:16px">';
+AGES.forEach(a=>{h+='<div class="card '+(f.ages.includes(a.id)?"on":"")+'" onclick="TF(\'ages\',\''+a.id+'\')" style="padding:10px"><div class="cl" style="font-size:12px">'+a.label+'</div></div>'});
+h+='</div><label class="lbl">نوع البيزنس</label>';
+BIZES.forEach(b=>{h+='<div class="row '+(f.biz===b.id?"on":"")+'" onclick="SF(\'biz\',\''+b.id+'\')"><span class="ri">'+b.icon+'</span><div style="flex:1"><div class="rl">'+b.label+'</div><div style="font-size:11px;color:#64748b;margin-top:2px">'+b.desc+'</div></div></div>'});
+return h;
+},
+()=>{
+const f=S.f;
+let h='<h2 class="stitle">🥊 المنافسون والمرحلة</h2>'+
+'<div class="field"><label class="lbl">أسماء المنافسين <span class="opt">(اختياري)</span></label><textarea class="ta" rows="2" placeholder="متجر أ، شركة ب" oninput="SN(\'comps\',this.value)">'+E(f.comps)+'</textarea></div>'+
+'<label class="lbl">مرحلة المشروع *</label>';
+STAGES.forEach(s=>{h+='<div class="row '+(f.stage===s.id?"on":"")+'" onclick="SF(\'stage\',\''+s.id+'\')"><span class="ri">'+s.icon+'</span><span class="rl">'+s.label+'</span></div>'});
+return h;
+},
+()=>{
+const f=S.f;const yn=[{id:"yes",label:"آه"},{id:"no",label:"لأ"}];
+let h='<h2 class="stitle">🛠️ الموارد المتاحة</h2><label class="lbl">عندك موقع / متجر؟</label><div class="g2" style="margin-bottom:16px">';
+yn.forEach(y=>{h+='<div class="card '+(f.website===y.id?"on":"")+'" onclick="SF(\'website\',\''+y.id+'\')" style="padding:12px"><div class="cl">'+y.label+'</div></div>'});
+h+='</div><label class="lbl">فريق ولا لوحدك؟</label><div class="g2" style="margin-bottom:16px">';
+h+='<div class="card '+(f.team==="alone"?"on":"")+'" onclick="SF(\'team\',\'alone\')" style="padding:12px"><div class="cl">لوحدي</div></div>';
+h+='<div class="card '+(f.team==="team"?"on":"")+'" onclick="SF(\'team\',\'team\')" style="padding:12px"><div class="cl">عندي فريق</div></div>';
+h+='</div><label class="lbl">محتوى سابق على السوشيال؟</label><div class="g2">';
+yn.forEach(y=>{h+='<div class="card '+(f.content===y.id?"on":"")+'" onclick="SF(\'content\',\''+y.id+'\')" style="padding:12px"><div class="cl">'+y.label+'</div></div>'});
+h+='</div>';return h;
+},
+()=>{
+const f=S.f;let h='<h2 class="stitle">🎯 إيه هدفك؟</h2><p class="sdesc">ده بيحدد طبيعة الاستراتيجية كلها</p><div class="g2">';
+GOALS.forEach(g=>{h+='<div class="card '+(f.goal===g.id?"on":"")+'" onclick="SF(\'goal\',\''+g.id+'\')" style="padding:20px 14px"><div class="ci" style="font-size:34px">'+g.icon+'</div><div class="cl" style="font-size:15px">'+g.label+'</div><div class="cd">'+g.desc+'</div></div>'});
+h+='</div>';return h;
+},
+()=>{
+const f=S.f;let h='<h2 class="stitle">📱 المنصات</h2><p class="sdesc">ممكن تختار أكتر من منصة</p>';
+PLATS.forEach(p=>{
+const on=f.plats.includes(p.id);
+h+='<div class="row '+(on?"on":"")+'" onclick="TF(\'plats\',\''+p.id+'\')" style="border-color:'+(on?p.color:"#1f1f2e")+';background:'+(on?p.color+'0d':"#111118")+'"><span class="ri">'+p.icon+'</span><span class="rl" style="color:'+(on?p.color:"#94a3b8")+'">'+p.label+'</span>'+(on?'<span style="background:'+p.color+';color:#000;border-radius:99px;padding:2px 10px;font-size:11px;font-weight:900">✓</span>':"")+'</div>';
+});return h;
+},
+()=>{
+const f=S.f;let h='<h2 class="stitle">💰 الميزانية الشهرية</h2>';
+BUDGETS.forEach(b=>{h+='<div class="row '+(f.budget===b.id?"on":"")+'" onclick="SF(\'budget\',\''+b.id+'\')"><span class="ri">💰</span><span class="rl">'+b.label+'</span></div>'});
+h+='<div class="field" style="margin-top:14px"><label class="lbl">الرقم بالظبط <span class="opt">(اختياري)</span></label><input class="inp" placeholder="8000" value="'+E(f.mbudget)+'" oninput="SN(\'mbudget\',this.value)"></div>';
+return h;
+},
+()=>{
+const f=S.f;let h='<h2 class="stitle">⏰ فترة الخطة</h2><p class="sdesc">قد إيه الخطة هتغطي</p>';
+DURS.forEach(d=>{h+='<div class="row '+(f.dur===d.id?"on":"")+'" onclick="SF(\'dur\',\''+d.id+'\')"><span class="ri">'+d.icon+'</span><div style="flex:1"><div class="rl">'+d.label+'</div><div style="font-size:11px;color:#64748b;margin-top:2px">'+d.desc+'</div></div></div>'});
+return h;
+}
+];
+
+window.SC=id=>{S.f.country=id;S.f.region="";render()}
+window.SW=v=>{S.f.whole=v;if(v)S.f.region="";render()}
+window.SR=r=>{S.f.region=r;render()}
+window.SI=id=>{S.f.ind=id;render()}
+window.SF=(k,v)=>{S.f[k]=v;render()}
+window.SN=(k,v)=>{S.f[k]=v}
+window.TF=(k,v)=>{S.f[k]=S.f[k].includes(v)?S.f[k].filter(x=>x!==v):[...S.f[k],v];render()}
+window.NX=()=>{if(ok()&&S.step<9){S.step++;render()}}
+window.BK=()=>{if(S.step>0){S.step--;render()}}
+window.GT=id=>{S.tab=id;render()}
+window.RST=()=>{S={screen:"wizard",step:0,tab:"strategy",prog:0,err:"",res:null,f:{country:"",region:"",whole:true,ind:"",bname:"",oname:"",odesc:"",price:"",gender:"",ages:[],biz:"",comps:"",stage:"",website:"",team:"",content:"",goal:"",plats:[],budget:"",mbudget:"",dur:""}};render()}
+window.RN=()=>{const a=document.querySelector(".acts");if(!a)return;const can=ok();if(S.step<9){a.innerHTML=(S.step>0?'<button class="bbk" onclick="BK()">← رجوع</button>':"")+' <button class="bnx" '+(can?"":"disabled")+' onclick="NX()">التالي →</button>'}else{a.innerHTML=(S.step>0?'<button class="bbk" onclick="BK()">← رجوع</button>':"")+' <button class="brn" '+(can?"":"disabled")+' onclick="RUN()">🚀 ابدأ التحليل</button>'}}
+
+render();
+</script>
+</body>
+</html>
