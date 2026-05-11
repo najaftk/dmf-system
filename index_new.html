@@ -177,19 +177,33 @@ return"المشروع:"+f.oname+"|المجال:"+ind+"|الدولة:"+loc+"|ال
 }
 
 async function API(prompt){
-const res=await fetch(WU,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt})});
-const txt=await res.text();
-if(!txt)throw new Error("استجابة فارغة");
+const res=await fetch(WU,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt,max_tokens:8192})});
+if(!res.ok){const t=await res.text();throw new Error("خطأ سيرفر "+res.status+": "+t.substring(0,100))}
+const ct=res.headers.get("content-type")||"";
+let text="";
+if(ct.includes("text/event-stream")){
+const reader=res.body.getReader();const dec=new TextDecoder("utf-8");let buf="";
+while(true){const{done,value}=await reader.read();if(done)break;
+buf+=dec.decode(value,{stream:true});const evs=buf.split("\n\n");buf=evs.pop();
+for(const ev of evs){for(const ln of ev.split("\n")){if(!ln.startsWith("data: "))continue;
+const data=ln.slice(6).trim();if(!data||data==="[DONE]")continue;
+try{const p=JSON.parse(data);
+if(p.type==="content_block_delta"&&p.delta?.type==="text_delta")text+=p.delta.text;
+else if(p.type==="error")throw new Error(p.error?.message||"stream error");
+}catch(e){if(e.message?.includes("stream error"))throw e}}}}
+}else{
+const txt=await res.text();if(!txt)throw new Error("استجابة فارغة");
 let d;try{d=JSON.parse(txt)}catch(e){throw new Error("خطأ سيرفر: "+txt.substring(0,80))}
 if(d.error)throw new Error(typeof d.error==="string"?d.error:d.error.message||JSON.stringify(d.error).substring(0,100));
 if(!d.content)throw new Error("لا يوجد محتوى");
-const text=d.content.map(i=>i.text||"").join("");
+text=d.content.map(i=>i.text||"").join("");
+}
+if(!text)throw new Error("لا يوجد نص في الرد");
 const clean=text.replace(/```json\s*/g,"").replace(/```\s*/g,"").trim();
 const m=clean.match(/\{[\s\S]*\}/);
-if(!m)throw new Error("لا يوجد JSON");
+if(!m)throw new Error("لا يوجد JSON صحيح في الرد");
 return JSON.parse(m[0]);
 }
-
 function P1(){
 return"أنت DMF System محمود شعبان. "+CTX()+"\nJSON فقط:"+
 '{"warnings":[],"strategy":{"positioningStatement":"","brandVsSales":"","usp":"","valueProposition":"","marketAnalysis":"","swot":{"strengths":[""],"weaknesses":[""],"opportunities":[""],"threats":[""]}},"audience":{"primaryPersona":{"name":"","age":"","gender":"","income":"","interests":[""],"painPoints":[""],"goals":[""],"objections":[""],"platforms":""},"secondaryPersona":"","metaTargeting":{"interests":[""],"behaviors":[""],"exclusions":[""],"lookalike":""},"tiktokTargeting":""}}';
